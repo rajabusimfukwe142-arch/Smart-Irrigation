@@ -61,7 +61,6 @@ export default function App() {
   });
 
   // Auth Inputs
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [regName, setRegName] = useState('');
@@ -239,7 +238,6 @@ export default function App() {
     }
   };
 
-
   // Toast helper
   const triggerToast = (text: string, type: 'success' | 'info' | 'error' = 'success') => {
     setToastMessage({ text, type });
@@ -287,7 +285,6 @@ export default function App() {
       setIsRefreshingWeather(false);
     }
   };
-
 
   // Recalculate triggers
   useEffect(() => {
@@ -344,7 +341,6 @@ export default function App() {
       );
     }
   };
-
 
   // Soil Moisture simulation state and logs
   const [autoSmsLogs, setAutoSmsLogs] = useState<Array<{
@@ -479,7 +475,6 @@ export default function App() {
       'info'
     );
   };
-
 
   // Send real SMS helper using Beem Africa or Twilio
   const sendRealSms = async (phone: string, message: string, recipientName: string) => {
@@ -780,32 +775,14 @@ export default function App() {
     setActiveTab('growth');
   };
 
- import React, { useState } from "react";
-
-export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [usernameInput, setUsernameInput] = useState("");
-  const [passwordInput, setPasswordInput] = useState("");
-  const [regName, setRegName] = useState("");
-  const [regPhone, setRegPhone] = useState("");
-  const [regEmail, setRegEmail] = useState("");
-  const [regRole, setRegRole] = useState("");
-  const [regRegion, setRegRegion] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [language] = useState("EN");
-
-  const triggerToast = (msg: string) => {
-    alert(msg);
-  };
-
   // ================= LOGIN =================
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent, username?: string, password?: string) => {
+    if (e) e.preventDefault();
     setPasswordError("");
 
-    const u = usernameInput.trim();
-    const p = passwordInput.trim();
+    // If username/password are passed directly (quick login), use them; otherwise use state
+    const u = username !== undefined ? username : usernameInput.trim();
+    const p = password !== undefined ? password : passwordInput.trim();
 
     if (!u || !p) {
       setPasswordError("Please enter username and password!");
@@ -826,14 +803,14 @@ export default function App() {
 
       const data = await response.json();
 
-      if (data.success || data.message === "Login successful") {
-        setCurrentUser(data.user || { name: u });
+      if (data.success) {
+        setCurrentUser(data.user);
         setIsAuthenticated(true);
-
+        localStorage.setItem('smart_irr_user', JSON.stringify(data.user));
+        localStorage.setItem('smart_irr_token', data.token || '');
         setUsernameInput("");
         setPasswordInput("");
-
-        triggerToast(`Welcome ${u} ✅`);
+        triggerToast(`Karibu ${u} ✅`, 'success');
       } else {
         setPasswordError(data.error || "Incorrect username or password!");
       }
@@ -842,109 +819,8 @@ export default function App() {
     }
   };
 
-  // ================= REGISTER =================
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPasswordError("");
-
-    if (!regName || !usernameInput || !passwordInput) {
-      setPasswordError("Please fill all required fields!");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: usernameInput,
-          password: passwordInput,
-          name: regName,
-          phone: regPhone,
-          email: regEmail,
-          role: regRole,
-          region: regRegion,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setCurrentUser(data.user);
-        setIsAuthenticated(true);
-
-        setUsernameInput("");
-        setPasswordInput("");
-
-        triggerToast("Account created successfully ✅");
-      } else {
-        setPasswordError(data.error || "Registration failed!");
-      }
-    } catch (err) {
-      setPasswordError("Failed to connect to server.");
-    }
-  };
-
-  // ================= UI =================
+  // If not authenticated, show login screen
   if (!isAuthenticated) {
-    return (
-      <div style={{ padding: 20 }}>
-        <h2>Login</h2>
-
-        <input
-          placeholder="Username"
-          value={usernameInput}
-          onChange={(e) => setUsernameInput(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={passwordInput}
-          onChange={(e) => setPasswordInput(e.target.value)}
-        />
-
-        <button onClick={handleLogin}>Login</button>
-
-        <p style={{ color: "red" }}>{passwordError}</p>
-
-        <hr />
-
-        <h2>Register</h2>
-
-        <input
-          placeholder="Full name"
-          value={regName}
-          onChange={(e) => setRegName(e.target.value)}
-        />
-
-        <input
-          placeholder="Phone"
-          value={regPhone}
-          onChange={(e) => setRegPhone(e.target.value)}
-        />
-
-        <input
-          placeholder="Email"
-          value={regEmail}
-          onChange={(e) => setRegEmail(e.target.value)}
-        />
-
-        <button onClick={handleRegister}>Register</button>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>Welcome {currentUser?.name}</h1>
-      <p>You are logged in ✅</p>
-    </div>
-  );
-}
-
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden">
         {/* Abstract background graphics to look highly professional */}
@@ -1092,6 +968,7 @@ export default function App() {
     );
   }
 
+  // Main authenticated app
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
       {/* Top Navigation Header Bar */}
