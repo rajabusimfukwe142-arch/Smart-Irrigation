@@ -1,17 +1,5 @@
 // pages/api/auth/login.js
-import fs from 'fs';
-import path from 'path';
-
-const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-
-const getUsers = () => {
-  try {
-    const data = fs.readFileSync(usersFilePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-};
+import { readData } from '../../../lib/db';
 
 export default function handler(req, res) {
   if (req.method !== "POST") {
@@ -30,10 +18,18 @@ export default function handler(req, res) {
     });
   }
 
-  const users = getUsers();
+  // Soma watumiaji kutoka faili
+  const users = readData('users.json');
   const user = users.find(u => u.username === username);
 
-  if (!user || user.password !== password) {
+  if (!user) {
+    return res.status(401).json({ 
+      success: false, 
+      error: "Jina la mtumiaji au nenosiri si sahihi!" 
+    });
+  }
+
+  if (user.password !== password) {
     return res.status(401).json({ 
       success: false, 
       error: "Jina la mtumiaji au nenosiri si sahihi!" 
