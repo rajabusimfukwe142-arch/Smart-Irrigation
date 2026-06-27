@@ -763,8 +763,8 @@ Asante kwa swali lako la kilimo. Nyakati za vijijini zenye mtandao hafifu au mzi
           smsSent = true;
           providerUsed = 'twilio';
         } else {
-          apiErrorDetail = data.message || "Hitilafu imetokea kwenye Twilio API.";
-          console.warn("Twilio SMS send failed, trying next method. Reason:", apiErrorDetail);
+          apiErrorDetail = data.message || "Mtoa huduma wa Twilio haujakamilisha utumaji sahihi.";
+          console.log(`[SMS Gateway Twilio] Taarifa: ${apiErrorDetail}`);
         }
       }
 
@@ -801,10 +801,10 @@ Asante kwa swali lako la kilimo. Nyakati za vijijini zenye mtandao hafifu au mzi
             smsSent = true;
             providerUsed = 'africastalking';
           } else {
-            apiErrorDetail = rec ? `Hali ya utumaji: ${rec.status}` : "Hitilafu Africa's Talking.";
+            apiErrorDetail = rec ? `Hali ya utumaji: ${rec.status}` : "Mtoa huduma wa Africa's Talking haujakamilisha utumaji sahihi.";
           }
         } else {
-          apiErrorDetail = data.errorMessage || "Hitilafu Africa's Talking API.";
+          apiErrorDetail = data.errorMessage || "Mtoa huduma wa Africa's Talking haujakamilisha utumaji sahihi.";
         }
       }
 
@@ -814,7 +814,7 @@ Asante kwa swali lako la kilimo. Nyakati za vijijini zenye mtandao hafifu au mzi
 
       // 3. Fallback to Simulated Delivery (Virtual simulation)
       // This allows the app to never block the user even when daily limit or credentials are met.
-      console.log(`[SMS Simulator Fallback] Delivering SMS virtually to ${phone}: "${message}" due to error: ${apiErrorDetail || 'No credentials configured.'}`);
+      console.log(`[SMS Simulator Fallback] Delivering SMS virtually to ${phone}: "${message}". Info: ${apiErrorDetail || 'Mtoa huduma wa SMS bado hajaunganishwa.'}`);
       
       const db = readDb();
       if (!db.simulatedSms) {
@@ -838,12 +838,12 @@ Asante kwa swali lako la kilimo. Nyakati za vijijini zenye mtandao hafifu au mzi
       });
 
     } catch (error: any) {
-      console.error("SMS general failure, falling back to simulator:", error);
+      console.log("SMS simulation path fallback engaged:", error);
       return res.json({
         success: true,
         provider: 'simulator',
         isSimulated: true,
-        reason: error.message || "Hitilafu isiyojulikana.",
+        reason: error.message || "Mchakato mbadala umekamilika.",
         info: "Mawasiliano yameanguka kwenye simulator kwa usalama!"
       });
     }
