@@ -780,97 +780,170 @@ export default function App() {
     setActiveTab('growth');
   };
 
+ import React, { useState } from "react";
+
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  const [regName, setRegName] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regRole, setRegRole] = useState("");
+  const [regRegion, setRegRegion] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [language] = useState("EN");
+
+  const triggerToast = (msg: string) => {
+    alert(msg);
+  };
+
+  // ================= LOGIN =================
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+
+    const u = usernameInput.trim();
+    const p = passwordInput.trim();
+
+    if (!u || !p) {
+      setPasswordError("Please enter username and password!");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: u,
+          password: p,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success || data.message === "Login successful") {
+        setCurrentUser(data.user || { name: u });
+        setIsAuthenticated(true);
+
+        setUsernameInput("");
+        setPasswordInput("");
+
+        triggerToast(`Welcome ${u} ✅`);
+      } else {
+        setPasswordError(data.error || "Incorrect username or password!");
+      }
+    } catch (err) {
+      setPasswordError("Failed to connect to server.");
+    }
+  };
+
+  // ================= REGISTER =================
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+
+    if (!regName || !usernameInput || !passwordInput) {
+      setPasswordError("Please fill all required fields!");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: usernameInput,
+          password: passwordInput,
+          name: regName,
+          phone: regPhone,
+          email: regEmail,
+          role: regRole,
+          region: regRegion,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCurrentUser(data.user);
+        setIsAuthenticated(true);
+
+        setUsernameInput("");
+        setPasswordInput("");
+
+        triggerToast("Account created successfully ✅");
+      } else {
+        setPasswordError(data.error || "Registration failed!");
+      }
+    } catch (err) {
+      setPasswordError("Failed to connect to server.");
+    }
+  };
+
+  // ================= UI =================
   if (!isAuthenticated) {
-    const handleLogin = async (e?: React.FormEvent, customUser?: string, customPass?: string) => {
-      if (e) e.preventDefault();
-      setPasswordError('');
-      const u = (customUser || usernameInput).trim();
-      const p = (customPass || passwordInput).trim();
-      if (!u || !p) {
-        setPasswordError(language === 'SW' ? 'Tafadhali jaza jina na nenosiri!' : 'Please enter username and password!');
-        return;
-      }
-      try {
-        const response = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: u, password: p })
-        });
-        const data = await response.json();
-        if (data.success) {
-          localStorage.setItem('smart_irr_user', JSON.stringify(data.user));
-          if (data.token) {
-            localStorage.setItem('smart_irr_token', data.token);
-          }
-          setCurrentUser(data.user);
-          setIsAuthenticated(true);
-          setUsernameInput('');
-          setPasswordInput('');
-          triggerToast(
-            language === 'SW'
-              ? `Umekubaliwa kuingia! Karibu tena, ${data.user.name}.`
-              : `Access granted! Welcome back, ${data.user.name}.`,
-            'success'
-          );
-        } else {
-          setPasswordError(data.error || (language === 'SW' ? 'Nenosiri au Jina la mtumiaji si sahihi!' : 'Incorrect username or password!'));
-          triggerToast(language === 'SW' ? 'Hitilafu ya kuingia!' : 'Login failed!', 'error');
-        }
-      } catch (err) {
-        setPasswordError(language === 'SW' ? 'Kushindwa kuunganisha na server. Hakikisha server imewashwa vizuri.' : 'Failed to connect to the server. Make sure the server is running.');
-      }
-    };
+    return (
+      <div style={{ padding: 20 }}>
+        <h2>Login</h2>
 
-    const handleRegister = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setPasswordError('');
+        <input
+          placeholder="Username"
+          value={usernameInput}
+          onChange={(e) => setUsernameInput(e.target.value)}
+        />
 
-      if (!regName.trim() || !usernameInput.trim() || !passwordInput.trim()) {
-        setPasswordError(language === 'SW' ? 'Tafadhali jaza sehemu zote za lazima!' : 'Please fill in all required fields!');
-        return;
-      }
+        <input
+          type="password"
+          placeholder="Password"
+          value={passwordInput}
+          onChange={(e) => setPasswordInput(e.target.value)}
+        />
 
-      try {
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: usernameInput,
-            password: passwordInput,
-            name: regName,
-            phone: regPhone,
-            role: regRole,
-            email: regEmail,
-            region: regRegion
-          })
-        });
-        const data = await response.json();
-        if (data.success) {
-          localStorage.setItem('smart_irr_user', JSON.stringify(data.user));
-          if (data.token) {
-            localStorage.setItem('smart_irr_token', data.token);
-          }
-          setCurrentUser(data.user);
-          setIsAuthenticated(true);
-          setUsernameInput('');
-          setPasswordInput('');
-          setRegName('');
-          setRegPhone('');
-          setRegEmail('');
-          triggerToast(
-            language === 'SW'
-              ? 'Akaunti yako mpya imesajiliwa kikamilifu kwenye Database!'
-              : 'New account registered successfully in the Database!',
-            'success'
-          );
-        } else {
-          setPasswordError(data.error || 'Sajili imeshindikana!');
-          triggerToast(language === 'SW' ? 'Sajili imeshindikana!' : 'Registration failed!', 'error');
-        }
-      } catch (err) {
-        setPasswordError('Kushindwa kuwasiliana na server.');
-      }
-    };
+        <button onClick={handleLogin}>Login</button>
+
+        <p style={{ color: "red" }}>{passwordError}</p>
+
+        <hr />
+
+        <h2>Register</h2>
+
+        <input
+          placeholder="Full name"
+          value={regName}
+          onChange={(e) => setRegName(e.target.value)}
+        />
+
+        <input
+          placeholder="Phone"
+          value={regPhone}
+          onChange={(e) => setRegPhone(e.target.value)}
+        />
+
+        <input
+          placeholder="Email"
+          value={regEmail}
+          onChange={(e) => setRegEmail(e.target.value)}
+        />
+
+        <button onClick={handleRegister}>Register</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>Welcome {currentUser?.name}</h1>
+      <p>You are logged in ✅</p>
+    </div>
+  );
+}
 
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden">
