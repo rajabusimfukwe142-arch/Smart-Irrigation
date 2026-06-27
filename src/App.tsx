@@ -788,7 +788,7 @@ export default function App() {
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: usernameInput, password: passwordInput })
+          body: JSON.stringify({ username: usernameInput.trim(), password: passwordInput.trim() })
         });
         const data = await response.json();
         if (data.success) {
