@@ -1,0 +1,23 @@
+// data/users.json
+[
+  {
+    "id": 1,
+    "name": "Msimamizi Mkuu",
+    "username": "admin",
+    "password": "admin",
+    "role": "Msimamizi Mkuu",
+    "phone": "0712345678",
+    "email": "admin@smartirrigation.com",
+    "region": "Morogoro"
+  },
+  {
+    "id": 2,
+    "name": "Mhandisi Mkuu",
+    "username": "Wakulima@123",
+    "password": "Wakulima@123",
+    "role": "Mhandisi Mkuu",
+    "phone": "0794172297",
+    "email": "engineer@smartirrigation.com",
+    "region": "Dar es Salaam"
+  }
+]
