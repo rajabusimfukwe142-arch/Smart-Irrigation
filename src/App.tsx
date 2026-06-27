@@ -781,14 +781,20 @@ export default function App() {
   };
 
   if (!isAuthenticated) {
-    const handleLogin = async (e: React.FormEvent) => {
-      e.preventDefault();
+    const handleLogin = async (e?: React.FormEvent, customUser?: string, customPass?: string) => {
+      if (e) e.preventDefault();
       setPasswordError('');
+      const u = (customUser || usernameInput).trim();
+      const p = (customPass || passwordInput).trim();
+      if (!u || !p) {
+        setPasswordError(language === 'SW' ? 'Tafadhali jaza jina na nenosiri!' : 'Please enter username and password!');
+        return;
+      }
       try {
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: usernameInput.trim(), password: passwordInput.trim() })
+          body: JSON.stringify({ username: u, password: p })
         });
         const data = await response.json();
         if (data.success) {
@@ -811,7 +817,7 @@ export default function App() {
           triggerToast(language === 'SW' ? 'Hitilafu ya kuingia!' : 'Login failed!', 'error');
         }
       } catch (err) {
-        setPasswordError('Kushindwa kuunganisha na server.');
+        setPasswordError(language === 'SW' ? 'Kushindwa kuunganisha na server. Hakikisha server imewashwa vizuri.' : 'Failed to connect to the server. Make sure the server is running.');
       }
     };
 
@@ -964,6 +970,46 @@ export default function App() {
               <span>{language === 'SW' ? 'Fungua Mfumo (Ingia)' : 'Unlock System (Log In)'}</span>
             </button>
           </form>
+
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <span className="text-xs font-bold text-slate-500 block mb-2.5 text-center uppercase tracking-wider">
+              {language === 'SW' ? '🔑 Akaunti za Kuingia Haraka' : '🔑 Quick Access Demo Accounts'}
+            </span>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => handleLogin(undefined, "admin", "admin")}
+                className="p-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-200 rounded-xl text-left transition group cursor-pointer"
+              >
+                <div className="text-[11px] font-extrabold text-slate-800 group-hover:text-emerald-800 block leading-tight">
+                  {language === 'SW' ? 'Msimamizi Mkuu' : 'Super Admin'}
+                </div>
+                <div className="text-[9px] text-slate-400 group-hover:text-emerald-600 font-mono mt-0.5">
+                  admin / admin
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLogin(undefined, "Wakulima@123", "Wakulima@123")}
+                className="p-2 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-200 rounded-xl text-left transition group cursor-pointer"
+              >
+                <div className="text-[11px] font-extrabold text-slate-800 group-hover:text-emerald-800 block leading-tight">
+                  {language === 'SW' ? 'Mhandisi Mkuu' : 'Chief Engineer'}
+                </div>
+                <div className="text-[9px] text-slate-400 group-hover:text-emerald-600 font-mono mt-0.5">
+                  Wakulima@123 / Wakulima@123
+                </div>
+              </button>
+            </div>
+            
+            <div className="bg-emerald-50/40 text-[10px] text-emerald-800 font-medium p-2.5 rounded-xl border border-emerald-100/60 mt-4 leading-relaxed">
+              💡 {language === 'SW' ? (
+                <span><strong>Taarifa ya Port:</strong> Server inatumika kwenye <strong>Port 3000</strong> (na si 5000). Usanidi wote wa CORS, routes, na relative API endpoints upo tayari kikamilifu kwenye tovuti hii. Bofya mmoja wa vifungo hapo juu kuingia mara moja!</span>
+              ) : (
+                <span><strong>Port Info:</strong> The backend is configured and running on <strong>Port 3000</strong> (not 5000). All CORS and API endpoints use relative routes natively. Click any button above to login instantly!</span>
+              )}
+            </div>
+          </div>
 
           <div className="text-center text-[10px] text-slate-400 font-semibold font-mono border-t border-slate-100 pt-4 mt-5">
             Smart Irrigation Tanzania Pro v3.0 | {language === 'SW' ? 'Salama & Imelindwa' : 'Secure & Protected'}

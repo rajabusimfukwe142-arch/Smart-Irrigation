@@ -137,7 +137,10 @@ async function startServer() {
       }
 
       const db = readDb();
-      const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+      const user = db.users.find(u => 
+        u.username.toLowerCase() === username.toLowerCase() || 
+        (u.email && u.email.toLowerCase() === username.toLowerCase())
+      );
       if (!user) {
         return res.status(401).json({ success: false, error: "Mtumiaji hajapatikana au nenosiri sio sahihi." });
       }
