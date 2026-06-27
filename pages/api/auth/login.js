@@ -1,4 +1,18 @@
 // pages/api/auth/login.js
+import fs from 'fs';
+import path from 'path';
+
+const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
+
+const getUsers = () => {
+  try {
+    const data = fs.readFileSync(usersFilePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return [];
+  }
+};
+
 export default function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ 
@@ -9,13 +23,15 @@ export default function handler(req, res) {
 
   const { username, password } = req.body || {};
 
-  // Watumiaji waliosajiliwa (kwa demo)
-  const users = {
-    "admin": { id: 1, name: "Msimamizi Mkuu", username: "admin", role: "Msimamizi Mkuu", phone: "0712345678", email: "admin@smartirrigation.com", password: "admin" },
-    "Wakulima@123": { id: 2, name: "Mhandisi Mkuu", username: "Wakulima@123", role: "Mhandisi Mkuu", phone: "0794172297", email: "engineer@smartirrigation.com", password: "Wakulima@123" }
-  };
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      error: "Tafadhali weka jina la mtumiaji na nenosiri!"
+    });
+  }
 
-  const user = users[username];
+  const users = getUsers();
+  const user = users.find(u => u.username === username);
 
   if (!user || user.password !== password) {
     return res.status(401).json({ 
