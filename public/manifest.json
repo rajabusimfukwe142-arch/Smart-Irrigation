@@ -1,0 +1,17 @@
+{
+  "short_name": "SmartIrr",
+  "name": "Smart Irrigation Tanzania Pro",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#065f46",
+  "theme_color": "#065f46",
+  "display": "standalone",
+  "orientation": "portrait"
+}
