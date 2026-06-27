@@ -1,21 +1,5 @@
 // pages/api/auth/register.js
-import fs from 'fs';
-import path from 'path';
-
-const usersFilePath = path.join(process.cwd(), 'data', 'users.json');
-
-const getUsers = () => {
-  try {
-    const data = fs.readFileSync(usersFilePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-};
-
-const saveUsers = (users) => {
-  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2), 'utf8');
-};
+import { readData, writeData, getNextId } from '../../../lib/db';
 
 export default function handler(req, res) {
   if (req.method !== "POST") {
@@ -32,8 +16,10 @@ export default function handler(req, res) {
     });
   }
 
-  const users = getUsers();
+  // Soma watumiaji kutoka faili
+  const users = readData('users.json');
 
+  // Angalia kama username tayari ipo
   if (users.find(u => u.username === username)) {
     return res.status(400).json({ 
       success: false, 
@@ -50,7 +36,7 @@ export default function handler(req, res) {
 
   // Unda mtumiaji mpya
   const newUser = {
-    id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+    id: getNextId(users),
     name,
     username,
     password,
@@ -61,7 +47,7 @@ export default function handler(req, res) {
   };
 
   users.push(newUser);
-  saveUsers(users);
+  writeData('users.json', users);
 
   const { password: _, ...userWithoutPassword } = newUser;
 
