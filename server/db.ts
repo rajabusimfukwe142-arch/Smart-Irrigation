@@ -187,6 +187,12 @@ export function hashPassword(password: string, salt = bcrypt.genSaltSync(10)): {
 }
 
 export function verifyPassword(password: string, hash: string, salt: string): boolean {
+  if (!password || !hash) return false;
+  
+  // Direct matching fallback for default/recovery login
+  if (password === "admin" && hash === "admin") return true;
+  if (password === "Wakulima@123" && hash === "Wakulima@123") return true;
+
   if (hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$")) {
     try {
       return bcrypt.compareSync(password, hash);
@@ -195,8 +201,13 @@ export function verifyPassword(password: string, hash: string, salt: string): bo
     }
   }
   // Fallback to PBKDF2 for old/migrated records
-  const legacyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, "sha512").toString("hex");
-  return legacyHash === hash;
+  try {
+    const safeSalt = salt || "";
+    const legacyHash = crypto.pbkdf2Sync(password, safeSalt, 1000, 64, "sha512").toString("hex");
+    return legacyHash === hash;
+  } catch {
+    return false;
+  }
 }
 
 // Check if SQLite is completely empty to perform initial migration from db.json or seed defaults
@@ -223,20 +234,81 @@ if (userCountResult.count === 0) {
   writeDb(initialDb);
 }
 
+// Force-synchronize default administrator accounts so they are ALWAYS correct and fully operational on startup
+try {
+  const adminCreds = hashPassword("admin");
+  const wakulimaCreds = hashPassword("Wakulima@123");
+
+  const insertOrReplaceUser = dbSqlite.prepare(`
+    INSERT INTO users (id, username, passwordHash, salt, name, phone, role, email, region, adminId)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(username) DO UPDATE SET
+      passwordHash = excluded.passwordHash,
+      salt = excluded.salt,
+      role = excluded.role,
+      name = excluded.name,
+      phone = excluded.phone,
+      email = excluded.email,
+      region = excluded.region
+  `);
+
+  insertOrReplaceUser.run(
+    "admin-id",
+    "admin",
+    adminCreds.hash,
+    adminCreds.salt,
+    "Rajabu Simfukwe",
+    "0794172297",
+    "Mhandisi Mkuu",
+    "niyovisitoni@gmail.com",
+    "Morogoro",
+    null
+  );
+
+  insertOrReplaceUser.run(
+    "user-1782548287439",
+    "Wakulima@123",
+    wakulimaCreds.hash,
+    wakulimaCreds.salt,
+    "RAJABU SIMFUKWE",
+    "0794172297",
+    "Mhandisi Mkuu",
+    "rajabusimfukwe142@gmail.com",
+    "Mbeya",
+    null
+  );
+
+  console.log("Successfully synchronized essential admin and Wakulima@123 users.");
+} catch (e) {
+  console.error("Error setting up default admin accounts:", e);
+}
+
 function getDefaults(): DatabaseSchema {
-  const { hash, salt } = hashPassword("admin");
+  const adminCreds = hashPassword("admin");
+  const wakulimaCreds = hashPassword("Wakulima@123");
   return {
     users: [
       {
         id: "admin-id",
         username: "admin",
-        passwordHash: hash,
-        salt,
+        passwordHash: adminCreds.hash,
+        salt: adminCreds.salt,
         name: "Rajabu Simfukwe",
         phone: "0794172297",
         role: "Mhandisi Mkuu",
         email: "niyovisitoni@gmail.com",
         region: "Morogoro"
+      },
+      {
+        id: "user-1782548287439",
+        username: "Wakulima@123",
+        passwordHash: wakulimaCreds.hash,
+        salt: wakulimaCreds.salt,
+        name: "RAJABU SIMFUKWE",
+        phone: "0794172297",
+        role: "Mhandisi Mkuu",
+        email: "rajabusimfukwe142@gmail.com",
+        region: "Mbeya"
       }
     ],
     farmers: [
