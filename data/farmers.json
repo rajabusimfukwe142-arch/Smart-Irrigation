@@ -1,0 +1,38 @@
+[
+  {
+    "id": 101,
+    "userId": 1,
+    "name": "Rajabu Simfukwe",
+    "phone": "0794172297",
+    "region": "Morogoro",
+    "district": "Kilosa",
+    "village": "Mhenda",
+    "latitude": -6.827,
+    "longitude": 37.659,
+    "registeredDate": "2026-05-10T10:00:00Z"
+  },
+  {
+    "id": 102,
+    "userId": 1,
+    "name": "Fatuma Juma",
+    "phone": "0655123456",
+    "region": "Dodoma",
+    "district": "Bahi",
+    "village": "Mundemu",
+    "latitude": -6.163,
+    "longitude": 35.751,
+    "registeredDate": "2026-06-01T08:30:00Z"
+  },
+  {
+    "id": 103,
+    "userId": 2,
+    "name": "Joseph Kahama",
+    "phone": "0712345678",
+    "region": "Mbeya",
+    "district": "Mbarali",
+    "village": "Rujewa",
+    "latitude": -8.900,
+    "longitude": 33.450,
+    "registeredDate": "2026-06-15T14:15:00Z"
+  }
+]
