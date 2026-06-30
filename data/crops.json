@@ -1,0 +1,41 @@
+[
+  {
+    "id": 201,
+    "userId": 1,
+    "farmerId": 101,
+    "cropName": "mahindi",
+    "variety": "Seedco 513",
+    "plantingDate": "2026-05-12",
+    "daysAfterPlanting": 45,
+    "areaHa": 1.5,
+    "irrigationMethod": "Drip",
+    "growthStage": "🌿 Ukuaji",
+    "moisture": 68
+  },
+  {
+    "id": 202,
+    "userId": 1,
+    "farmerId": 102,
+    "cropName": "nyanya",
+    "variety": "Assila F1",
+    "plantingDate": "2026-06-02",
+    "daysAfterPlanting": 24,
+    "areaHa": 0.5,
+    "irrigationMethod": "Sprinkler",
+    "growthStage": "🌿 Kuota",
+    "moisture": 35
+  },
+  {
+    "id": 203,
+    "userId": 2,
+    "farmerId": 103,
+    "cropName": "mpunga",
+    "variety": "SARO 5",
+    "plantingDate": "2026-05-20",
+    "daysAfterPlanting": 37,
+    "areaHa": 2.0,
+    "irrigationMethod": "Flood",
+    "growthStage": "🌿 Ukuaji",
+    "moisture": 72
+  }
+]

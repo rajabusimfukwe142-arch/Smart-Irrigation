@@ -1,0 +1,6 @@
+{
+  "name": "Smart Irrigation Tanzania",
+  "description": "A smart weather-based irrigation management platform for farmers in Tanzania, featuring crop growth stage tracking, Penman-Monteith ETo water calculation, scheduling, and custom SMS alerts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
